@@ -1,0 +1,4 @@
+Fulfill property one: 920 / 100
+Fulfill property two: 902 / 100
+Fulfill property three: 902 / 100
+Fulfill property four: 999 / 100

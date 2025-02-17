@@ -1,4 +1,4 @@
-Fulfill property one: 483 / 100
-Fulfill property two: 18 / 100
-Fulfill property three: 18 / 100
-Fulfill property four: 526 / 100
+Fulfill property one: 37 / 100
+Fulfill property two: 0 / 100
+Fulfill property three: 0 / 100
+Fulfill property four: 0 / 100

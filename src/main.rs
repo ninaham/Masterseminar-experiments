@@ -1,4 +1,4 @@
-use std::{collections::HashSet, fs::{self, File}};
+use std::{collections::{HashMap, HashSet}, fs::{self, File}};
 
 use rand::Rng;
 use star::data_structures::graph::Graph;
@@ -14,6 +14,8 @@ fn main() {
         temp_graphs.push((graph, time_labels));
     });
 
+    //println!("{}", temp_graphs.iter().map(|g| g.0.nodes).sum::<usize>() / temp_graphs.len());
+
     println!("finished reading graphs");
 
     let mut fulfill_property_one = 0;
@@ -27,25 +29,29 @@ fn main() {
         println!("Starting graph {}", counter);
         let n = graph.nodes as f64;
         let log_n = f64::log2(graph.nodes as f64);
-        let deleted_edges = set_p(&mut graph, &time_labels, 0.75 * log_n / n);
+        let deleted_edges = set_p(&mut graph, &time_labels, 3.0 * log_n / n);
         if property_four(&graph, &time_labels, &deleted_edges) {
             fulfill_property_four += 1;
+        } else {
+            println!("Graph did not fulfill property four, numberof vertices: {}", graph.nodes);
         }
-        println!("Finished poperty 4 of graph {}", counter);
-        let deleted_edges = set_p(&mut graph, &time_labels, 0.5 * log_n / n);
+        let deleted_edges = set_p(&mut graph, &time_labels, 2.0 * log_n / n);
         if property_three(&graph, &time_labels, &deleted_edges) {
             fulfill_property_three += 1;
+        } else {
+            println!("Graph did not fulfill property three, numberof vertices: {}", graph.nodes);
         }
-        println!("Finished poperty 3 of graph {}", counter);
         if property_two(&graph, &time_labels, &deleted_edges) {
             fulfill_property_two += 1;
+        } else {
+            println!("Graph did not fulfill property two, numberof vertices: {}", graph.nodes);
         }
-        println!("Finished poperty 2 of graph {}", counter);
-        let deleted_edges = set_p(&mut graph, &time_labels, 0.25 * log_n / n);
+        let deleted_edges = set_p(&mut graph, &time_labels, 1.0 * log_n / n);
         if property_one(&graph, &time_labels, &deleted_edges) {
             fulfill_property_one += 1;
+        } else {
+            println!("Graph did not fulfill property one, numberof vertices: {}", graph.nodes);
         }
-        println!("Finished poperty 1 of graph {}", counter);
     }
 
     println!("Fulfill property one: {} / 100", fulfill_property_one);
@@ -106,7 +112,9 @@ fn construct_foremost_tree(
     deleted_edges: &Vec<Vec<bool>>,
     source_vertex: usize,
 ) -> (HashSet<usize>, Vec<(usize, usize)>) {
+    let mut prev_time = HashMap::new();
     let mut n = HashSet::new();
+    prev_time.insert(source_vertex, 0.0);
     n.insert(source_vertex);
     let mut nodes = (n, Vec::new());
     for _ in 1..graph.nodes {
@@ -117,7 +125,7 @@ fn construct_foremost_tree(
                 graph.edges[*u]
                     .iter()
                     .enumerate()
-                    .filter(|(i, v)| !nodes.0.contains(v) && !deleted_edges[*u][*i])
+                    .filter(|(i, v)| (!nodes.0.contains(v) && !deleted_edges[*u][*i]) && *prev_time.get(u).unwrap() < time_labels[*u][*i])
                     .map(|(_, v)| (*u, *v))
             }).map(|(u, v)| {
                 (
@@ -132,7 +140,7 @@ fn construct_foremost_tree(
             Some(e_k) => e_k,
             
         };
-        
+        prev_time.insert(e_k.0.1, e_k.1);
         nodes.0.insert(e_k.0.1);
         nodes.1.push(e_k.0);
     }
